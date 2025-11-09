@@ -1,0 +1,58 @@
+name: Build and Release Debian Package
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+env:
+  THEME_VERSION: 1.0.0  
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev
+
+      - name: Make postinst executable
+        run: |
+          chmod +x sirros-plymouth-theme/DEBIAN/postinst
+
+      - name: Build Debian package
+        run: |
+          mkdir -p build/sirros-plymouth-theme
+          cp -R sirros-plymouth-theme/DEBIAN build/sirros-plymouth-theme/
+          cp -R sirros-plymouth-theme/usr build/sirros-plymouth-theme/
+          cd build
+          dpkg-deb --build sirros-plymouth-theme
+
+      - name: Rename package with version
+        run: |
+          cd build
+          mv sirros-plymouth-theme.deb sirros-plymouth-theme-v${{ env.THEME_VERSION }}.deb
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sirros-plymouth-theme-deb
+          path: build/sirros-plymouth-theme-v${{ env.THEME_VERSION }}.deb
+
+      - name: Create GitHub Release (even without tag)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Release main build #${{ github.run_number }}
+          files: build/sirros-plymouth-theme-v${{ env.THEME_VERSION }}.deb
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

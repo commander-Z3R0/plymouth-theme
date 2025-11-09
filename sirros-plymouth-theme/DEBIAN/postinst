@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+USER="sirr"
+USER_HOME="/home/$USER"
+GTK_CONFIG_DIR="$USER_HOME/.config/gtk-3.0"
+GTK_CSS_FILE="$GTK_CONFIG_DIR/gtk.css"
+WALLPAPER_PATH="/usr/share/backgrounds/wallpaper_sirros.png"
+
+# Créer le dossier gtk-3.0 s'il n'existe pas
+if [ ! -d "$GTK_CONFIG_DIR" ]; then
+  mkdir -p "$GTK_CONFIG_DIR"
+  chown $USER:$USER "$GTK_CONFIG_DIR"
+fi
+
+# Créer ou écraser gtk.css avec le contenu voulu
+cat > "$GTK_CSS_FILE" << EOF
+/*
+ * Set a background for the lockscreen.
+ */
+phosh-lockscreen, .phosh-lockshield {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('file://$WALLPAPER_PATH');
+  background-size: cover;
+  background-position: center;
+}
+
+/*
+ * Set a background for the app grid.
+ */
+phosh-app-grid {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('file://$WALLPAPER_PATH');
+  background-size: cover;
+  background-position: center;
+}
+EOF
+
+# Appliquer la bonne propriété utilisateur/groupe sur gtk.css
+chown $USER:$USER "$GTK_CSS_FILE"
+
+# Configuration du thème Plymouth
+PLYMOUTH_THEME_NAME="sirros"
+PLYMOUTH_THEME_PATH="/usr/share/plymouth/themes/$PLYMOUTH_THEME_NAME/$PLYMOUTH_THEME_NAME.plymouth"
+
+echo "[+] Configuration du thème Plymouth '$PLYMOUTH_THEME_NAME'..."
+if [ -f "$PLYMOUTH_THEME_PATH" ]; then
+    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth "$PLYMOUTH_THEME_PATH" 100
+    update-alternatives --set default.plymouth "$PLYMOUTH_THEME_PATH"
+    update-initramfs -u
+    echo "[+] Plymouth mis à jour avec succès."
+else
+    echo "[!] Fichier $PLYMOUTH_THEME_PATH introuvable."
+fi
+
+# Redémarrer phosh pour appliquer la config GTK
+echo "[+] Redémarrage de phosh..."
+systemctl restart phosh || echo "[!] Impossible de redémarrer phosh. Vérifiez que le service existe."
+
+exit 0
