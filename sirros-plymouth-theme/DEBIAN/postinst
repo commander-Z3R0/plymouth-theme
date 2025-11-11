@@ -12,7 +12,7 @@ if [ ! -d "$GTK_CONFIG_DIR" ]; then
   mkdir -p "$GTK_CONFIG_DIR"
   # chown $USER:$USER "$GTK_CONFIG_DIR" # Debug test to avoid error chown
 fi
-c
+
 # Créer ou écraser gtk.css avec le contenu voulu
 cat > "$GTK_CSS_FILE" << EOF
 /*
