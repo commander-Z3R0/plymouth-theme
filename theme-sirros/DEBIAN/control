@@ -1,7 +1,7 @@
-Package: sirros-plymouth-theme
+Package: sirros-theme
 Version: 1.0
 Section: themes
 Priority: optional
 Architecture: all
 Maintainer: Sirr_Org
-Description: Plymooth Theme for Sirr_OS
+Description: Theme for Sirr_OS

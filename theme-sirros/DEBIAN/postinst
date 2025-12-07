@@ -39,26 +39,4 @@ EOF
 # Apply correct user/group ownership to gtk.css
 chown $USER:$USER "$GTK_CSS_FILE"
 
-# Plymouth theme configuration
-PLYMOUTH_THEME_NAME="sirros"
-PLYMOUTH_THEME_PATH="/usr/share/plymouth/themes/$PLYMOUTH_THEME_NAME/$PLYMOUTH_THEME_NAME.plymouth"
-
-echo "[+] Configuring Plymouth theme '$PLYMOUTH_THEME_NAME'..."
-if [ -f "$PLYMOUTH_THEME_PATH" ]; then
-    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth "$PLYMOUTH_THEME_PATH" 100
-    update-alternatives --set default.plymouth "$PLYMOUTH_THEME_PATH"
-
-    # Force Plymouth theme setting
-    plymouth-set-default-theme sirros
-    
-    update-initramfs -u
-    echo "[+] Plymouth updated successfully."
-else
-    echo "[!] File $PLYMOUTH_THEME_PATH not found."
-fi
-
-# Restart phosh to apply GTK config
-echo "[+] Restarting phosh..."
-systemctl restart phosh || echo "[!] Could not restart phosh. Please verify the service exists."
-
 exit 0
