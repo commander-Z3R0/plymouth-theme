@@ -25,33 +25,33 @@ jobs:
 
       - name: Make postinst executable
         run: |
-          chmod +x sirros-theme/DEBIAN/postinst
+          chmod +x theme-sirros/DEBIAN/postinst
 
       - name: Build Debian package
         run: |
           mkdir -p build/sirros-theme
-          cp -R sirros-theme/DEBIAN build/sirros-theme/
-          cp -R sirros-theme/usr build/sirros-theme/
+          cp -R theme-sirros/DEBIAN build/heme-sirros/
+          cp -R theme-sirros/usr build/theme-sirros/
           cd build
-          dpkg-deb --build sirros-theme
+          dpkg-deb --build theme-sirros
 
       - name: Rename package with version
         run: |
           cd build
-          mv sirros-theme.deb sirros-theme-v${{ env.THEME_VERSION }}.deb
+          mv theme-sirros.deb theme-sirros-v${{ env.THEME_VERSION }}.deb
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sirros-plymouth-theme-deb
-          path: build/sirros-theme-v${{ env.THEME_VERSION }}.deb
+          name: sirros-theme-deb
+          path: build/theme-sirros-v${{ env.THEME_VERSION }}.deb
 
       - name: Create GitHub Release (even without tag)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Release main build #${{ github.run_number }}
-          files: build/sirros-theme-v${{ env.THEME_VERSION }}.deb
+          files: build/theme-sirros-v${{ env.THEME_VERSION }}.deb
           draft: false
           prerelease: false
         env:
